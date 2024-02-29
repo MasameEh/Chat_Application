@@ -1,11 +1,14 @@
 import 'package:chat_application/screens/login_screen/login.dart';
+import 'package:chat_application/shared/bloc_observer.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  Bloc.observer = MyBlocObserver();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );

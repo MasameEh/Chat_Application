@@ -1,5 +1,8 @@
 
+import 'package:chat_application/screens/login_screen/cubit/cubit.dart';
+import 'package:chat_application/screens/login_screen/cubit/states.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,120 +16,150 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailAddressController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  bool _isLogin = true;
 
-  void submit()
-  {
-    var valid = _formKey.currentState!.validate();
-
-    if(valid)
-    {
-      print(_emailAddressController.text);
-      print(_passwordController.text);
-    }
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _emailAddressController.dispose();
+    _passwordController.dispose();
   }
   @override
   Widget build(BuildContext context) {
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.primary,
-      body: Center(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                margin: const EdgeInsets.only(
-                  top: 30,
-                  right: 20,
-                  left: 20,
-                  bottom: 30,
-                ),
-                child: Image.asset('assets/images/chat.PNG',fit: BoxFit.fitHeight),
-              ),
-              Card(
-                margin: const EdgeInsets.all(20),
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        children: [
-                          TextFormField(
-                            controller: _emailAddressController,
-                            keyboardType: TextInputType.emailAddress,
-                            decoration: const InputDecoration(
-                              labelText: 'Email Address',
-                              prefixIcon: Icon(Icons.email_rounded,),
-                            ),
-                            onFieldSubmitted: (_)
-                            {
-                              submit();
-                            },
-                            validator: (value)
-                            {
-                              if (value == null || value.isEmpty || value.trim().isEmpty || !value.contains('@')) {
-                                return 'Please enter an valid email address';
-                              }
-                              return null;
-                            },
-                            autocorrect: false,
-                            textCapitalization: TextCapitalization.none,
-                          ),
-                          TextFormField(
-                            controller: _passwordController,
-                            keyboardType: TextInputType.visiblePassword,
-                            decoration: const InputDecoration(
-                              labelText: 'Password',
-                              prefixIcon: Icon(Icons.lock_rounded,),
-                            ),
-                            onFieldSubmitted: (_)
-                            {
-                              submit();
-                            },
-                            validator: (value)
-                            {
-                              if (value == null || value.trim().isEmpty)
-                              {
-                                return 'Please enter your password';
-                              }
-                              else if (value.length < 6)
-                              {
-                                return 'Password must be at least 6 characters';
-                              }
-                              return null;
-                            },
-                            obscureText: true,
-                          ),
-                          const SizedBox(height: 12.0),
-                          ElevatedButton(
-                              onPressed: submit,
-                             style: ElevatedButton.styleFrom(
-                               backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+
+    void submit(AppLoginCubit cubit) async
+    {
+      var valid = _formKey.currentState!.validate();
+
+      if(!valid)
+      {
+        return;
+      }
+      if(cubit.isLogin)
+      {
+        cubit.userLogin(email: _emailAddressController.text, password: _passwordController.text);
+      }else
+      {
+        cubit.userRegister(email: _emailAddressController.text, password: _passwordController.text);
+      }
+    }
+    return BlocProvider(
+        create: (BuildContext context) => AppLoginCubit(),
+        child: BlocConsumer<AppLoginCubit, AppLoginStates>(
+             listener: (context, state)
+             {
+               if (state is AppRegisterErrorState)
+               {
+                 ScaffoldMessenger.of(context).clearSnackBars();
+                 ScaffoldMessenger.of(context).showSnackBar(
+                   SnackBar(content: Text(state.error ?? 'Authentication failed.'),),
+                 );
+               }
+             },
+             builder: (context, state)
+             {
+               AppLoginCubit cubit = AppLoginCubit.get(context);
+               return Scaffold(
+                 backgroundColor: Theme.of(context).colorScheme.primary,
+                 body: Center(
+                   child: SingleChildScrollView(
+                     child: Column(
+                       mainAxisAlignment: MainAxisAlignment.center,
+                       children: [
+                         Container(
+                           margin: const EdgeInsets.only(
+                             top: 30,
+                             right: 20,
+                             left: 20,
+                             bottom: 30,
+                           ),
+                           child: Image.asset('assets/images/chat.PNG',fit: BoxFit.fitHeight),
+                         ),
+                         Card(
+                           margin: const EdgeInsets.all(20),
+                           child: SingleChildScrollView(
+                             child: Padding(
+                               padding: const EdgeInsets.all(16.0),
+                               child: Form(
+                                 key: _formKey,
+                                 child: Column(
+                                   children: [
+                                     TextFormField(
+                                       controller: _emailAddressController,
+                                       keyboardType: TextInputType.emailAddress,
+                                       decoration: const InputDecoration(
+                                         labelText: 'Email Address',
+                                         prefixIcon: Icon(Icons.email_rounded,),
+                                       ),
+                                       onFieldSubmitted: (_)
+                                       {
+                                         submit(cubit);
+                                       },
+                                       validator: (value)
+                                       {
+                                         if (value == null || value.isEmpty || value.trim().isEmpty || !value.contains('@')) {
+                                           return 'Please enter an valid email address';
+                                         }
+                                         return null;
+                                       },
+                                       autocorrect: false,
+                                       textCapitalization: TextCapitalization.none,
+                                     ),
+                                     TextFormField(
+                                       controller: _passwordController,
+                                       keyboardType: TextInputType.visiblePassword,
+                                       decoration: const InputDecoration(
+                                         labelText: 'Password',
+                                         prefixIcon: Icon(Icons.lock_rounded,),
+                                       ),
+                                       onFieldSubmitted: (_)
+                                       {
+                                         submit(cubit);
+                                       },
+                                       validator: (value)
+                                       {
+                                         if (value == null || value.trim().isEmpty)
+                                         {
+                                           return 'Please enter your password';
+                                         }
+                                         else if (value.length < 6)
+                                         {
+                                           return 'Password must be at least 6 characters';
+                                         }
+                                         return null;
+                                       },
+                                       obscureText: true,
+                                     ),
+                                     const SizedBox(height: 12.0),
+                                     ElevatedButton(
+                                       onPressed: (){submit(cubit);},
+                                       style: ElevatedButton.styleFrom(
+                                         backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                                       ),
+                                       child: Text(cubit.isLogin ? 'Login' : 'Sign up'),
+                                     ),
+                                     TextButton(
+                                       onPressed: () {
+                                         cubit.changeBetweenLoginSignUp();
+                                       },
+                                       child: Text(cubit.isLogin
+                                           ? 'Create an account'
+                                           : 'I already have an account'),
+                                     ),
+                                   ],
+                                 ),
+                               ),
                              ),
-                              child: Text(_isLogin ? 'Login' : 'Sign up'),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              setState(() {
-                                _isLogin = !_isLogin;
-                              });
-                            },
-                            child: Text(_isLogin
-                                ? 'Create an account'
-                                : 'I already have an account'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ) ,
-              ),
-            ],
-          ),
+                           ) ,
+                         ),
+                       ],
+                     ),
+                   ),
+                 ),
+               );
+             },
         ),
-      ),
     );
   }
 }
