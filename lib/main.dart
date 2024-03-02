@@ -1,5 +1,9 @@
 import 'package:chat_application/screens/auth_screen/auth.dart';
+import 'package:chat_application/screens/auth_screen/cubit/cubit.dart';
+import 'package:chat_application/screens/chat_screen/chat.dart';
 import 'package:chat_application/shared/bloc_observer.dart';
+import 'package:chat_application/widgets/cubit.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,7 +16,20 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
+  runApp(
+      MultiBlocProvider(
+      providers: [
+        BlocProvider(
+        create: (BuildContext context) => AppWidgetsCubit(),
+          lazy: false,
+        ),
+        BlocProvider(
+        create: (BuildContext context) => AppAuthCubit(),
+        ),
+      ],
+        child: MyApp(),
+      )
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -27,7 +44,21 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const AuthScreen(),
+      home: StreamBuilder(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot)
+        {
+          if(snapshot.connectionState == ConnectionState.waiting)
+          {
+            return const CircularProgressIndicator();
+          }
+          if(snapshot.hasData)
+          {
+            return const Chat();
+          }
+          return const AuthScreen();
+        },
+      ),
     );
   }
 }

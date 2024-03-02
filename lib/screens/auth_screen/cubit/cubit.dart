@@ -28,7 +28,7 @@ class AppAuthCubit extends Cubit<AppAuthStates> {
       emit(AppLoginSuccessState());
     } on FirebaseAuthException catch (e) {
       String error = '';
-
+      print(e.message);
       if (e.code == 'wrong-password') {
         error = 'Incorrect password. Please try again.';
       } else if (e.code == 'network-request-failed') {
@@ -45,6 +45,7 @@ class AppAuthCubit extends Cubit<AppAuthStates> {
       } else {
         error = e.code.toString();
       }
+      print(error);
       emit(AppLoginErrorState(error));
     }
   }

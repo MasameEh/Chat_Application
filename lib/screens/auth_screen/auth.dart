@@ -1,5 +1,6 @@
 import 'package:chat_application/screens/auth_screen/cubit/cubit.dart';
 import 'package:chat_application/screens/auth_screen/cubit/states.dart';
+import 'package:chat_application/widgets/user_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -43,11 +44,17 @@ class _AuthScreenState extends State<AuthScreen> {
         cubit.userRegister(email: _emailAddressController.text, password: _passwordController.text);
       }
     }
-    return BlocProvider(
-        create: (BuildContext context) => AppAuthCubit(),
-        child: BlocConsumer<AppAuthCubit, AppAuthStates>(
+    return BlocConsumer<AppAuthCubit, AppAuthStates>(
              listener: (context, state)
              {
+               if (state is AppLoginErrorState )
+               {
+                 print(state.error);
+                 ScaffoldMessenger.of(context).clearSnackBars();
+                 ScaffoldMessenger.of(context).showSnackBar(
+                   SnackBar(content: Text(state.error ?? 'Authentication failed.'),),
+                 );
+               }
                if (state is AppRegisterErrorState)
                {
                  ScaffoldMessenger.of(context).clearSnackBars();
@@ -73,7 +80,7 @@ class _AuthScreenState extends State<AuthScreen> {
                              left: 20,
                              bottom: 30,
                            ),
-                           child: Image.asset('assets/images/chat.PNG',fit: BoxFit.fitHeight),
+                           child: Image.asset('assets/images/chat.PNG',height: 180, ),
                          ),
                          Card(
                            margin: const EdgeInsets.all(20),
@@ -84,6 +91,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                  key: _formKey,
                                  child: Column(
                                    children: [
+                                     if(!cubit.isLogin) UserImage(),
                                      TextFormField(
                                        controller: _emailAddressController,
                                        keyboardType: TextInputType.emailAddress,
@@ -158,7 +166,6 @@ class _AuthScreenState extends State<AuthScreen> {
                  ),
                );
              },
-        ),
     );
   }
 }

@@ -7,7 +7,7 @@ class AppLoginLoadingState extends AppAuthStates {}
 class AppLoginSuccessState extends AppAuthStates {}
 
 class AppLoginErrorState extends AppAuthStates {
-  final String error;
+  late String error;
   AppLoginErrorState(this.error);
 }
 
