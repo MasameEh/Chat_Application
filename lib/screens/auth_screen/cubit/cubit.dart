@@ -1,12 +1,13 @@
+import 'package:chat_application/screens/auth_screen/cubit/states.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:chat_application/screens/login_screen/cubit/states.dart';
 
-class AppLoginCubit extends Cubit<AppLoginStates> {
-  AppLoginCubit() : super(AppLoginInitialState());
 
-  static AppLoginCubit get(context) => BlocProvider.of(context);
+class AppAuthCubit extends Cubit<AppAuthStates> {
+  AppAuthCubit() : super(AppLoginInitialState());
+
+  static AppAuthCubit get(context) => BlocProvider.of(context);
 
   final FirebaseAuth firebase = FirebaseAuth.instance;
   bool isPass = true;
@@ -55,7 +56,7 @@ class AppLoginCubit extends Cubit<AppLoginStates> {
     emit(AppRegisterLoadingState());
 
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      await firebase.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );

@@ -1,17 +1,16 @@
-
-import 'package:chat_application/screens/login_screen/cubit/cubit.dart';
-import 'package:chat_application/screens/login_screen/cubit/states.dart';
+import 'package:chat_application/screens/auth_screen/cubit/cubit.dart';
+import 'package:chat_application/screens/auth_screen/cubit/states.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class AuthScreen extends StatefulWidget {
+  const AuthScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<AuthScreen> createState() => _AuthScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _AuthScreenState extends State<AuthScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailAddressController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -28,7 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
 
 
-    void submit(AppLoginCubit cubit) async
+    void submit(AppAuthCubit cubit) async
     {
       var valid = _formKey.currentState!.validate();
 
@@ -45,8 +44,8 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     }
     return BlocProvider(
-        create: (BuildContext context) => AppLoginCubit(),
-        child: BlocConsumer<AppLoginCubit, AppLoginStates>(
+        create: (BuildContext context) => AppAuthCubit(),
+        child: BlocConsumer<AppAuthCubit, AppAuthStates>(
              listener: (context, state)
              {
                if (state is AppRegisterErrorState)
@@ -59,7 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
              },
              builder: (context, state)
              {
-               AppLoginCubit cubit = AppLoginCubit.get(context);
+               AppAuthCubit cubit = AppAuthCubit.get(context);
                return Scaffold(
                  backgroundColor: Theme.of(context).colorScheme.primary,
                  body: Center(
