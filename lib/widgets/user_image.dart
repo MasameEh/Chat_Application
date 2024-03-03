@@ -1,5 +1,7 @@
 
 
+import 'dart:io';
+
 import 'package:chat_application/widgets/cubit.dart';
 import 'package:chat_application/widgets/states.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +9,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 
 class UserImage extends StatelessWidget {
-  const UserImage({super.key});
+  const UserImage({super.key, required this.onPickImage});
+
+  final void Function(File pickedImage) onPickImage;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +28,11 @@ class UserImage extends StatelessWidget {
                   radius: 40,
                 ),
                 TextButton.icon(
-                  onPressed: cubit.pickImage,
+                  onPressed: ()
+                  {
+                    cubit.pickImage();
+                    onPickImage(cubit.pickedImageFile!);
+                  },
                   icon: const Icon(Icons.image),
                   label: Text('Add Image',
                       style: TextStyle(

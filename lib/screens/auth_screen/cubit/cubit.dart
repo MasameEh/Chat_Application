@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:chat_application/screens/auth_screen/cubit/states.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -13,6 +16,8 @@ class AppAuthCubit extends Cubit<AppAuthStates> {
   bool isPass = true;
   bool isLogin = true;
   IconData suffix = Icons.visibility_outlined;
+  File? selectedImage;
+  late String imageURL;
 
   void userLogin({
     required String email,
@@ -57,10 +62,15 @@ class AppAuthCubit extends Cubit<AppAuthStates> {
     emit(AppRegisterLoadingState());
 
     try {
-      await firebase.createUserWithEmailAndPassword(
+      final UserCredential userCredential = await firebase.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
+      final Reference storageRef = FirebaseStorage.instance.ref().child('user_images').child('${userCredential.user!.uid}.jpg');
+      storageRef.putFile(selectedImage!);
+      imageURL = await storageRef.getDownloadURL();
+      print(imageURL);
+
       emit(AppRegisterSuccessState());
     } on FirebaseAuthException catch (e) {
 

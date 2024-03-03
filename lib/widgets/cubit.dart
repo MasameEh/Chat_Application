@@ -23,6 +23,8 @@ class AppWidgetsCubit extends Cubit<AppWidgetsStates> {
       return;
     }
     pickedImageFile = File(pickedImage.path);
+
+
     emit(AppChangeImageState());
   }
 

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:chat_application/screens/auth_screen/cubit/cubit.dart';
 import 'package:chat_application/screens/auth_screen/cubit/states.dart';
 import 'package:chat_application/widgets/user_image.dart';
@@ -32,7 +34,7 @@ class _AuthScreenState extends State<AuthScreen> {
     {
       var valid = _formKey.currentState!.validate();
 
-      if(!valid)
+      if(!valid )
       {
         return;
       }
@@ -91,7 +93,12 @@ class _AuthScreenState extends State<AuthScreen> {
                                  key: _formKey,
                                  child: Column(
                                    children: [
-                                     if(!cubit.isLogin) UserImage(),
+                                     if(!cubit.isLogin) UserImage(
+                                         onPickImage: (File pickedImage)
+                                         {
+                                           cubit.selectedImage = pickedImage;
+                                         }
+                                     ),
                                      TextFormField(
                                        controller: _emailAddressController,
                                        keyboardType: TextInputType.emailAddress,
