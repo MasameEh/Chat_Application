@@ -23,3 +23,6 @@ class AppRegisterErrorState extends AppAuthStates {
 class AppChangePasswordVisibilityState extends AppAuthStates {}
 
 class AppChangeBetweenLoginSignUpState extends AppAuthStates {}
+
+class AppNavigateSelectedImageState extends AppAuthStates {}
+

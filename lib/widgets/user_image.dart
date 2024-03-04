@@ -28,10 +28,11 @@ class UserImage extends StatelessWidget {
                   radius: 40,
                 ),
                 TextButton.icon(
-                  onPressed: ()
-                  {
-                    cubit.pickImage();
-                    onPickImage(cubit.pickedImageFile!);
+                  onPressed: () async{
+                      await cubit.pickImage();
+                      if (cubit.pickedImageFile != null) {
+                        onPickImage(cubit.pickedImageFile!);
+                      }
                   },
                   icon: const Icon(Icons.image),
                   label: Text('Add Image',

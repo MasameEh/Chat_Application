@@ -27,7 +27,7 @@ Future<void> main() async {
         create: (BuildContext context) => AppAuthCubit(),
         ),
       ],
-        child: MyApp(),
+        child: const MyApp(),
       )
   );
 }

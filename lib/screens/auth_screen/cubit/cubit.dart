@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:chat_application/screens/auth_screen/cubit/states.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -58,6 +59,7 @@ class AppAuthCubit extends Cubit<AppAuthStates> {
   void userRegister({
     required String email,
     required String password,
+    required String username,
   }) async {
     emit(AppRegisterLoadingState());
 
@@ -67,11 +69,20 @@ class AppAuthCubit extends Cubit<AppAuthStates> {
         password: password,
       );
       final Reference storageRef = FirebaseStorage.instance.ref().child('user_images').child('${userCredential.user!.uid}.jpg');
-      storageRef.putFile(selectedImage!);
+      await storageRef.putFile(selectedImage!);
       imageURL = await storageRef.getDownloadURL();
       print(imageURL);
 
-      emit(AppRegisterSuccessState());
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(userCredential.user!.uid)
+          .set({
+          'username' : username,
+          'email' : email,
+          'image_url' : imageURL,
+          }
+        ).then((_) => emit(AppRegisterSuccessState()));
+
     } on FirebaseAuthException catch (e) {
 
       emit(AppRegisterErrorState(e.message.toString()));
@@ -82,4 +93,12 @@ class AppAuthCubit extends Cubit<AppAuthStates> {
     isLogin = !isLogin;
     emit(AppChangeBetweenLoginSignUpState());
   }
+
+  void navigateSelectedImage(File pickedImage)
+  {
+    selectedImage = pickedImage;
+
+    emit(AppNavigateSelectedImageState());
+  }
 }
+

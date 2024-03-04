@@ -1,8 +1,7 @@
-import 'dart:io';
-
 import 'package:chat_application/screens/auth_screen/cubit/cubit.dart';
 import 'package:chat_application/screens/auth_screen/cubit/states.dart';
 import 'package:chat_application/widgets/user_image.dart';
+import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -17,7 +16,7 @@ class _AuthScreenState extends State<AuthScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailAddressController = TextEditingController();
   final _passwordController = TextEditingController();
-
+  final _userNameController = TextEditingController();
 
   @override
   void dispose() {
@@ -34,7 +33,7 @@ class _AuthScreenState extends State<AuthScreen> {
     {
       var valid = _formKey.currentState!.validate();
 
-      if(!valid )
+      if(!valid || (cubit.selectedImage == null && !cubit.isLogin))
       {
         return;
       }
@@ -43,7 +42,7 @@ class _AuthScreenState extends State<AuthScreen> {
         cubit.userLogin(email: _emailAddressController.text, password: _passwordController.text);
       }else
       {
-        cubit.userRegister(email: _emailAddressController.text, password: _passwordController.text);
+        cubit.userRegister(email: _emailAddressController.text, password: _passwordController.text, username: _userNameController.text);
       }
     }
     return BlocConsumer<AppAuthCubit, AppAuthStates>(
@@ -54,14 +53,14 @@ class _AuthScreenState extends State<AuthScreen> {
                  print(state.error);
                  ScaffoldMessenger.of(context).clearSnackBars();
                  ScaffoldMessenger.of(context).showSnackBar(
-                   SnackBar(content: Text(state.error ?? 'Authentication failed.'),),
+                   SnackBar(content: Text(state.error),),
                  );
                }
                if (state is AppRegisterErrorState)
                {
                  ScaffoldMessenger.of(context).clearSnackBars();
                  ScaffoldMessenger.of(context).showSnackBar(
-                   SnackBar(content: Text(state.error ?? 'Authentication failed.'),),
+                   SnackBar(content: Text(state.error),),
                  );
                }
              },
@@ -94,10 +93,28 @@ class _AuthScreenState extends State<AuthScreen> {
                                  child: Column(
                                    children: [
                                      if(!cubit.isLogin) UserImage(
-                                         onPickImage: (File pickedImage)
-                                         {
-                                           cubit.selectedImage = pickedImage;
+                                         onPickImage: cubit.navigateSelectedImage,
+                                     ),
+                                     TextFormField(
+                                       controller: _userNameController,
+                                       keyboardType: TextInputType.name,
+                                       decoration: const InputDecoration(
+                                         labelText: 'Username',
+                                         prefixIcon: Icon(Icons.person,),
+                                       ),
+                                       onFieldSubmitted: (_)
+                                       {
+                                         submit(cubit);
+                                       },
+                                       validator: (value)
+                                       {
+                                         if (value == null || value.isEmpty || value.trim().isEmpty || value.length < 5) {
+                                           return 'Please enter an valid username';
                                          }
+                                         return null;
+                                       },
+                                       autocorrect: false,
+                                       textCapitalization: TextCapitalization.none,
                                      ),
                                      TextFormField(
                                        controller: _emailAddressController,
@@ -146,13 +163,19 @@ class _AuthScreenState extends State<AuthScreen> {
                                        obscureText: true,
                                      ),
                                      const SizedBox(height: 12.0),
-                                     ElevatedButton(
-                                       onPressed: (){submit(cubit);},
-                                       style: ElevatedButton.styleFrom(
-                                         backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                                     ConditionalBuilder(
+                                       condition: state is! AppRegisterLoadingState && state is! AppLoginLoadingState,
+                                       builder: (context) =>  ElevatedButton(
+                                         onPressed: (){submit(cubit);},
+                                         style: ElevatedButton.styleFrom(
+                                           backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                                         ),
+                                         child: Text(cubit.isLogin ? 'Login' : 'Sign up'),
                                        ),
-                                       child: Text(cubit.isLogin ? 'Login' : 'Sign up'),
+                                       fallback: (context) => const Center(
+                                           child: CircularProgressIndicator()),
                                      ),
+
                                      TextButton(
                                        onPressed: () {
                                          cubit.changeBetweenLoginSignUp();

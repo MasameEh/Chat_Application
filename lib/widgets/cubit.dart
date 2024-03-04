@@ -11,7 +11,7 @@ class AppWidgetsCubit extends Cubit<AppWidgetsStates> {
 
   File? pickedImageFile;
 
-  void pickImage() async
+  Future pickImage() async
   {
     final XFile? pickedImage = await ImagePicker().pickImage(
         source: ImageSource.gallery,
@@ -23,7 +23,6 @@ class AppWidgetsCubit extends Cubit<AppWidgetsStates> {
       return;
     }
     pickedImageFile = File(pickedImage.path);
-
 
     emit(AppChangeImageState());
   }
