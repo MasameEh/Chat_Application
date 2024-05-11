@@ -1,5 +1,8 @@
+import 'package:chat_application/widgets/chat_message.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
+import '../../widgets/new_message.dart';
 
 class Chat extends StatelessWidget {
   const Chat({super.key});
@@ -21,7 +24,14 @@ class Chat extends StatelessWidget {
           )
         ],
       ),
-      body: Text('logged in'),
+      body: Column(
+        children: [
+          Expanded(
+              child: ChatMessage(),
+          ),
+          NewMessage()
+        ],
+      ),
     );
   }
 }

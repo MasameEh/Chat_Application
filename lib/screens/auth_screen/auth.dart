@@ -95,7 +95,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                      if(!cubit.isLogin) UserImage(
                                          onPickImage: cubit.navigateSelectedImage,
                                      ),
-                                     TextFormField(
+                                     if(!cubit.isLogin) TextFormField(
                                        controller: _userNameController,
                                        keyboardType: TextInputType.name,
                                        decoration: const InputDecoration(
